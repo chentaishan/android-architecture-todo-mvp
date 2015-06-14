@@ -20,3 +20,4 @@
 2015
 从一半启航！
 
+###  [2015-6](http://codekk.com/images/weixin-qrcode2.jpg)  
