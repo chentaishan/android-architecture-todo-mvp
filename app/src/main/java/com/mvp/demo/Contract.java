@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface Contract {
 	interface View extends BaseView<Presenter> {
+		void setLoading(boolean isLoading);
 		void show(List<String> list);
 	}
 

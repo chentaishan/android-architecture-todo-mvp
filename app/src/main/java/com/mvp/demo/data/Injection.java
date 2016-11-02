@@ -4,8 +4,8 @@ import android.content.Context;
 
 import com.mvp.demo.ActivityUtils;
 import com.mvp.demo.domain.repository.FakeDataSource;
-import com.mvp.demo.domain.usecase.GetCase1;
-import com.mvp.demo.mvp.UseCaseHandler;
+import com.mvp.demo.utils.BaseSchedulerProvider;
+import com.mvp.demo.utils.SchedulerProvider;
 
 
 public class Injection {
@@ -14,13 +14,9 @@ public class Injection {
         ActivityUtils.checkNotNull(context);
         return DataRepository.getInstance(FakeDataSource.getInstance());
     }
-    
-    public static UseCaseHandler provideUseCaseHandler() {
-        return UseCaseHandler.getInstance();
-    }
-    
-    public static GetCase1 provideGetStatistics(Context context) {
-        return new GetCase1(provideTasksRepository(context));
+
+    public static BaseSchedulerProvider provideSchedulerProvider() {
+        return SchedulerProvider.getInstance();
     }
 
 }

@@ -1,28 +1,41 @@
 package com.mvp.demo;
 
 
-import com.mvp.demo.domain.model.ResultModel;
-import com.mvp.demo.domain.usecase.GetCase1;
-import com.mvp.demo.mvp.UseCase;
-import com.mvp.demo.mvp.UseCaseHandler;
+import com.mvp.demo.utils.BaseSchedulerProvider;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import rx.Observable;
+import rx.Subscriber;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 
 public class AcitivtyPresenter implements Contract.Presenter {
 
     private final Contract.View mView;//view 接口 用于更新UI
-    private final UseCaseHandler mUseCaseHandler;//当前用例层
-    private final GetCase1 mGetCase1;//中间层 数据请求在这里
+    private final BaseSchedulerProvider mSchedulerProvider;
+    private CompositeSubscription mSubscriptions;
 
-    public AcitivtyPresenter(UseCaseHandler useCaseHandler, Contract.View statisticsView, GetCase1 getStatistics) {
-        mUseCaseHandler = ActivityUtils.checkNotNull(useCaseHandler, "useCaseHandler cannot be null!");
+    public AcitivtyPresenter(Contract.View statisticsView,BaseSchedulerProvider schedulerProvider) {
         mView = ActivityUtils.checkNotNull(statisticsView, "StatisticsView cannot be null!");
-        mGetCase1 = ActivityUtils.checkNotNull(getStatistics, "getStatistics cannot be null!");
+        mSchedulerProvider = ActivityUtils.checkNotNull(schedulerProvider,"schedulerProvider cannot be null!");
+        mSubscriptions = new CompositeSubscription();
         mView.setPresenter(this);
     }
 
+
     @Override
-    public void start() {
+    public void subscribe() {
         startTask();
+    }
+
+    @Override
+    public void unsubscribe() {
+        mSubscriptions.clear();
     }
 
     @Override
@@ -30,25 +43,47 @@ public class AcitivtyPresenter implements Contract.Presenter {
 
     }
 
-
     private void startTask() {
-        mUseCaseHandler.execute(mGetCase1, new GetCase1.RequestValues(), mGetCallback);
+        Subscription subscription = Observable.create(new Observable.OnSubscribe<List<String>>(){
+            @Override
+            public void call(Subscriber<? super List<String>> subscriber) {
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    subscriber.onError(e);
+                }
+                List<String> list = new ArrayList<>();
+                for (int i = 0;i<10;i++){
+                    list.add(i + "--");
+                }
+                subscriber.onNext(list);
+                subscriber.onCompleted();
+            }
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()).subscribe(new Subscriber<List<String>>() {
+                    @Override
+                    public void onStart() {
+                        super.onStart();
+                        mView.setLoading(true);
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                        mView.setLoading(false);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        mView.setLoading(false);
+                    }
+
+                    @Override
+                    public void onNext(List<String> list) {
+                        mView.show(list);
+                    }
+                });
+
+        mSubscriptions.add(subscription);
     }
 
-    private UseCase.UseCaseCallback<GetCase1.ResponseValue> mGetCallback = new UseCase.UseCaseCallback<GetCase1.ResponseValue>() {
-
-        @Override
-        public void onSuccess(GetCase1.ResponseValue response) {
-            ResultModel statistics = response.getStatistics();
-            if (statistics.getList() == null) {
-                return;
-            }
-            mView.show(statistics.getList());
-        }
-
-        @Override
-        public void onError() {
-
-        }
-    };
 }
