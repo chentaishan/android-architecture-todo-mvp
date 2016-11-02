@@ -12,4 +12,6 @@ public interface BaseSchedulerProvider {
     Scheduler io();
 
     Scheduler ui();
+
+    Scheduler newThread();
 }

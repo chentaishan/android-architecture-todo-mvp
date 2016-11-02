@@ -33,7 +33,13 @@ public class SchedulerProvider implements BaseSchedulerProvider {
     }
 
     @Override
+    public Scheduler newThread() {
+        return Schedulers.newThread();
+    }
+
+    @Override
     public Scheduler ui() {
         return AndroidSchedulers.mainThread();
     }
+
 }

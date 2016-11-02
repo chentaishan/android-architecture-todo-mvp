@@ -9,14 +9,12 @@ import java.util.List;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
 
 public class AcitivtyPresenter implements Contract.Presenter {
 
-    private final Contract.View mView;//view 接口 用于更新UI
+    private final Contract.View mView;//view接口 用于更新UI
     private final BaseSchedulerProvider mSchedulerProvider;
     private CompositeSubscription mSubscriptions;
 
@@ -26,7 +24,6 @@ public class AcitivtyPresenter implements Contract.Presenter {
         mSubscriptions = new CompositeSubscription();
         mView.setPresenter(this);
     }
-
 
     @Override
     public void subscribe() {
@@ -44,7 +41,13 @@ public class AcitivtyPresenter implements Contract.Presenter {
     }
 
     private void startTask() {
-        Subscription subscription = Observable.create(new Observable.OnSubscribe<List<String>>(){
+        mSubscriptions.clear();
+        Subscription subscription = getObservable().subscribe(getSubscriber());
+        mSubscriptions.add(subscription);
+    }
+
+    private Observable<List<String>> getObservable() {
+        return Observable.create(new Observable.OnSubscribe<List<String>>() {
             @Override
             public void call(Subscriber<? super List<String>> subscriber) {
                 try {
@@ -53,37 +56,42 @@ public class AcitivtyPresenter implements Contract.Presenter {
                     subscriber.onError(e);
                 }
                 List<String> list = new ArrayList<>();
-                for (int i = 0;i<10;i++){
+                for (int i = 0; i < 10; i++) {
                     list.add(i + "--");
                 }
                 subscriber.onNext(list);
                 subscriber.onCompleted();
             }
-        }).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread()).subscribe(new Subscriber<List<String>>() {
-                    @Override
-                    public void onStart() {
-                        super.onStart();
-                        mView.setLoading(true);
-                    }
-
-                    @Override
-                    public void onCompleted() {
-                        mView.setLoading(false);
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        mView.setLoading(false);
-                    }
-
-                    @Override
-                    public void onNext(List<String> list) {
-                        mView.show(list);
-                    }
-                });
-
-        mSubscriptions.add(subscription);
+        })
+                .subscribeOn(mSchedulerProvider.io())
+                .observeOn(mSchedulerProvider.ui());
     }
+
+
+    private Subscriber<List<String>> getSubscriber() {
+        return new Subscriber<List<String>>() {
+            @Override
+            public void onStart() {
+                super.onStart();
+                mView.setLoading(true);
+            }
+
+            @Override
+            public void onCompleted() {
+                mView.setLoading(false);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                mView.setLoading(false);
+            }
+
+            @Override
+            public void onNext(List<String> list) {
+                mView.show(list);
+            }
+        };
+    }
+
 
 }
