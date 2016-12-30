@@ -1,10 +1,13 @@
 package com.mvp.demo;
 
 
+import com.mvp.demo.data.Injection;
 import com.mvp.demo.utils.BaseSchedulerProvider;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -18,10 +21,15 @@ public class AcitivtyPresenter implements Contract.Presenter {
     private final BaseSchedulerProvider mSchedulerProvider;
     private CompositeSubscription mSubscriptions;
 
-    public AcitivtyPresenter(Contract.View statisticsView,BaseSchedulerProvider schedulerProvider) {
+    @Inject
+    public AcitivtyPresenter(Contract.View statisticsView) {
         mView = ActivityUtils.checkNotNull(statisticsView, "StatisticsView cannot be null!");
-        mSchedulerProvider = ActivityUtils.checkNotNull(schedulerProvider,"schedulerProvider cannot be null!");
+        mSchedulerProvider = Injection.provideSchedulerProvider();
         mSubscriptions = new CompositeSubscription();
+    }
+
+    @Inject
+    void setupListeners() {
         mView.setPresenter(this);
     }
 
