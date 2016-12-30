@@ -8,15 +8,18 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.mvp.demo.dagger.TasksPresenterModule;
+import com.mvp.demo.data.source.TasksRepositoryComponent;
 
 import java.util.List;
 
 import javax.inject.Inject;
 
 public class MainActivity extends Activity implements Contract.View {
+
     private static final String TAG = "MainActivity";
 
-    @Inject Contract.Presenter mActivityPresenter;
+    @Inject
+    Contract.Presenter mActivityPresenter;
 
     private ProgressBar mLoadingView;
     private TextView mTextView;
@@ -27,9 +30,12 @@ public class MainActivity extends Activity implements Contract.View {
         setContentView(R.layout.activity_main);
         mLoadingView = (ProgressBar) findViewById(R.id.loading);
         mTextView = (TextView) findViewById(R.id.list);
+        TasksRepositoryComponent task = ((ToDoApplication) getApplication()).getTasksRepositoryComponent();
+
         DaggerTasksComponent.builder()
-                .tasksRepositoryComponent(((ToDoApplication) getApplication()).getTasksRepositoryComponent())
-                .tasksPresenterModule(new TasksPresenterModule(this)).build()
+                .tasksRepositoryComponent(task)
+                .tasksPresenterModule(new TasksPresenterModule(this,task.getTasksRepository()))
+                .build()
                 .inject(this);
     }
 

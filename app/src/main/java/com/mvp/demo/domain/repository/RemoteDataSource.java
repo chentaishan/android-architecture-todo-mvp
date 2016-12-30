@@ -1,5 +1,7 @@
 package com.mvp.demo.domain.repository;
 
+import android.util.Log;
+
 import com.mvp.demo.data.IDataSource;
 
 import java.util.ArrayList;
@@ -9,17 +11,18 @@ import java.util.List;
 /**
  * 实现接口，真实请求数据
  */
-public class FakeDataSource implements IDataSource {
-    private static final String TAG = "FakeDataSource";
+public class RemoteDataSource implements IDataSource {
+    private static final String TAG = "RemoteDataSource";
 
-    private static FakeDataSource INSTANCE;
+    private static RemoteDataSource INSTANCE;
 
-    private FakeDataSource() {
+    private RemoteDataSource() {
+        Log.d(TAG,"RemoteDataSource");
     }
 
-    public static FakeDataSource getInstance() {
+    public static RemoteDataSource getInstance() {
         if (INSTANCE == null) {
-            INSTANCE = new FakeDataSource();
+            INSTANCE = new RemoteDataSource();
         }
         return INSTANCE;
     }

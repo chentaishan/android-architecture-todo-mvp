@@ -12,4 +12,5 @@ import dagger.Component;
 public interface TasksComponent {
 	
     void inject(MainActivity activity);
+
 }

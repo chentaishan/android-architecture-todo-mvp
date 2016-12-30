@@ -10,6 +10,7 @@ public class DataRepository implements IDataSource {
 
     private final IDataSource mTasksRemoteDataSource;
 
+
     private DataRepository(IDataSource tasksRemoteDataSource) {
         mTasksRemoteDataSource = ActivityUtils.checkNotNull(tasksRemoteDataSource);
     }
@@ -21,9 +22,9 @@ public class DataRepository implements IDataSource {
         return INSTANCE;
     }
 
-    public static void destroyInstance() {
-        INSTANCE = null;
-    }
+//    public static void destroyInstance() {
+//        INSTANCE = null;
+//    }
 
     @Override
     public void getTasks(final LoadDataCallback callback) {

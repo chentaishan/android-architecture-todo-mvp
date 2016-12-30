@@ -1,9 +1,9 @@
 package com.mvp.demo.data.source;
 
-import android.content.Context;
-
 import com.mvp.demo.data.DataRepository;
 import com.mvp.demo.data.Injection;
+import com.mvp.demo.domain.repository.Local;
+import com.mvp.demo.domain.repository.Remote;
 
 import javax.inject.Singleton;
 
@@ -15,14 +15,16 @@ public class TasksRepositoryModule {
 
     @Singleton
     @Provides
-    DataRepository provideTasksLocalDataSource(Context context) {
-        return Injection.provideTasksRepository(context);
+    @Local
+    DataRepository provideTasksLocalDataSource() {
+        return Injection.provideTasksRepository();
     }
 
-//    @Singleton
-//    @Provides
-//    DataRepository provideTasksRemoteDataSource() {
-//        return Injection.provideTasksRepository(context);
-//    }
+    @Singleton
+    @Provides
+    @Remote
+    DataRepository provideTasksRemoteDataSource() {
+        return Injection.provideTasksTemoteRepository();
+    }
 
 }
